@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "161645924921",
+    "firebase_url": "https://pavelm-1b796.firebaseio.com",
+    "project_id": "pavelm-1b796",
+    "storage_bucket": "pavelm-1b796.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:161645924921:android:671ff7c7f2f641326773e8",
+        "android_client_info": {
+          "package_name": "com.mads.pavelm"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "161645924921-ors4iqle7clqf6ed2j5g5689hln3t2ar.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDuhihjrX_bV-DkGc8qgeqdHrykDsxjQgs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "161645924921-ors4iqle7clqf6ed2j5g5689hln3t2ar.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

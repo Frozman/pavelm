@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pavelm/model/Storage.dart';
 import 'package:pavelm/widget/CounterWidget.dart';
@@ -42,6 +43,12 @@ class _UserCounterFormState extends State<UserCounterForm> {
         widget.user.counter[lastIndex][k] = v.value;
       });
     });
+    // После синхронизации данных виджета с моделью
+    // Находим нужный нам документ по ключу документа
+    // И обновляем данные.
+    // .toFirestore - специальный написанный нами метод, который форматирует данные в удобном нам виде
+    // для передачи в firestore
+    Firestore.instance.collection('users').document("${widget.user.firebaseKey}").updateData(widget.user.toFirestore());
   }
 
   @override

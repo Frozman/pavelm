@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pavelm/model/Storage.dart';
 
@@ -21,34 +22,35 @@ class _LoaderScreenState extends State<LoaderScreen> {
   }
 
   doLoad() async {
-    // Эмулируем загрузку данных
-    // Для того, чтобы воспользоваться асинхронной конструкцией then делаем функцию асинхронной ключевым словом async
+    // Загружаем данные
+    // Создаем инстанс 
+    // Firestore
+    QuerySnapshot firedata =
+        await Firestore.instance.collection('users').getDocuments(source: Source.server);
 
-    String rawData =
-        '{"data":{"user":[{"id":"1","counter":[{"a":1,"b":5,"c":7}],"lastName":"Cruise","photo":"https://jsonformatter.org/img/tom-cruise.jpg"},{"id":"2","counter":[{"a":3,"b":1,"c":9}],"lastName":"Sharapova","photo":"https://jsonformatter.org/img/Maria-Sharapova.jpg"},{"id":"3","counter":[{"a":6,"b":2,"c":1}],"firstName":"Robert","lastName":"Downey Jr.","photo":"https://jsonformatter.org/img/Robert-Downey-Jr.jpg"}]}}';
-    var data = jsonDecode(rawData);
-    // проверяем наличие нужных нам полей чтобы не получить неприятных ошибок
-    // жонглирование массивами и map для того чтобы замапить данные на объекты
+    // Создаем список пользователей согласно firebase документам
+    Storage().users = List.generate(firedata.documents.length, (i){
+      // Вводим переменную для конкретного документа
+      var doc = firedata.documents[i].data;
+
+      // Вводим переменную для ключа конктерного документа 
+      var key = firedata.documents[i].documentID;
 
 
-    
-    if (data['data'] != null && data['data']['user'] != null) {
-      if (data['data']['user'].runtimeType == List<dynamic>().runtimeType) {
-        Storage().users = List.generate(data['data']['user'].length, (i) {
-          return UserData(
-            id: data['data']['user'][i]['id'],
-            counter: List.generate(
-                data['data']['user'][i]['counter'].length,
-                (j) => Map<String, int>.from(
-                    data['data']['user'][i]['counter'][j])),
-            lastName: data['data']['user'][i]['lastName'],
-            photoUrl: data['data']['user'][i]['photo'],
-          );
-        });
-      }
-    }
-    // Эмулируем задержку
-    await Future.delayed(Duration(seconds: 5));
+      // Создаем инстанс данных пользователя
+      return UserData(
+        firebaseKey: key,
+         id: doc['id'].toString(),
+        counter: List.generate(
+            doc['counter'].length,
+            (j) =>
+                Map<String, int>.from(doc['counter'][j])),
+        lastName: doc['lastname'],
+        photoUrl: doc['photo'], 
+      );
+    });
+
+  
     return true;
   }
 
