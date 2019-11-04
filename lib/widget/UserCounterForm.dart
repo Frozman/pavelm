@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:pavelm/model/HistoryModel.dart';
 import 'package:pavelm/model/Storage.dart';
+
+import 'package:pavelm/model/UserData.dart';
 import 'package:pavelm/widget/CounterWidget.dart';
 
 class UserCounterForm extends StatefulWidget {
@@ -43,12 +46,36 @@ class _UserCounterFormState extends State<UserCounterForm> {
         widget.user.counter[lastIndex][k] = v.value;
       });
     });
+    Map<String, int> counter = Map();
+    counter['a'] = counterValues['a'].value;
+    counter['b'] = counterValues['b'].value;
+    counter['c'] = counterValues['c'].value;
+    Storage().historyStorage.append(HistoryItem(
+          counter: counter,
+          time: Timestamp.now(),
+        ));
+
+    Storage().historyStorage.upload().then((error) {
+      if (error != null) {
+        Scaffold.of(context).showSnackBar(SnackBar(
+          content: Text(
+            error,
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.red,
+        ));
+      }
+    });
+
     // После синхронизации данных виджета с моделью
     // Находим нужный нам документ по ключу документа
     // И обновляем данные.
     // .toFirestore - специальный написанный нами метод, который форматирует данные в удобном нам виде
     // для передачи в firestore
-    Firestore.instance.collection('users').document("${widget.user.firebaseKey}").updateData(widget.user.toFirestore());
+    Firestore.instance
+        .collection('users')
+        .document("${widget.user.firebaseKey}")
+        .updateData(widget.user.toFirestore());
   }
 
   @override
@@ -81,4 +108,3 @@ class _UserCounterFormState extends State<UserCounterForm> {
     );
   }
 }
-

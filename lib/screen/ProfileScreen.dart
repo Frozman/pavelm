@@ -27,34 +27,58 @@ class ProfileScreenBody extends StatefulWidget {
 }
 
 class _ProfileScreenBodyState extends State<ProfileScreenBody> {
+  // Получаем в пользование инстанс, объявляем финальным, чтобы мы не могли повторно присвоить значение
   final FirebaseAuth _auth = FirebaseAuth.instance;
+
   @override
   void initState() {
     super.initState();
+    // Подписываемся на событие через метод обертку
     Storage().userBind(update);
   }
 
   @override
   void dispose() {
+    // Отписываемся через метод обертку
     Storage().userUnbind(update);
     super.dispose();
   }
 
+  // Метод слушатель событий, который вызывает перерисовку, когда меняется значение
   update() {
     setState(() {});
   }
 
+  // Обработчик нажатия на авторизацию
   onAuthPress() async {
+    // google_sign_in плагин. Создаем конфигурацию для методов авторизации
     final GoogleSignIn _googleSignIn = GoogleSignIn();
+
+    // Вызываем авторизацию со стороны устройства через нативные api проброшенные в dart
+    // await тут нужен т.к. обе операции (метод и геттер) возвращают не значения, а Future.
+    // Для того, чтобы функция выполнилась синхронно в этих шагах стоит await.
+    // Если функция возвращает Future и перед ней стоит await - процесс выполнения этого изолята (потока)
+    // будет приостановлен, пока не придет значение и Future не будет выполнен
     final GoogleSignInAccount googleUser = await _googleSignIn.signIn();
     GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-    Storage().user = (await _auth.signInWithCredential(
-            GoogleAuthProvider.getCredential(
-                accessToken: googleAuth.accessToken,
-                idToken: googleAuth.idToken)))
+
+    Storage().user = (
+            // Запускаем процесс авторизации на сервере, передаем в качестве доступов credentials
+            await _auth.signInWithCredential(
+                // Для получения credentials нам нужны локальные access и id
+                // Их мы получаем на устройстве с помощью .signIn() и .authentication
+                GoogleAuthProvider.getCredential(
+                    accessToken: googleAuth.accessToken,
+                    idToken: googleAuth.idToken)))
+        // Из всех данных нам нужен только пользователь
         .user;
   }
 
+  // Функция которая готовит виджеты кнопок.
+  // Метод виджета который возвращает виджет - антипаттерн ( по хорошему)
+  // Но позволяет избежать проброса обработчиков и данные
+  // Не особо влияет на производительность
+  
   Widget buildAuthButtons() {
     return Storage().user == null
         ? Row(

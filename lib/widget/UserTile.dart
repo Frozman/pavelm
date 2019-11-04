@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:pavelm/model/Storage.dart';
+
+import 'package:pavelm/model/UserData.dart';
 import 'package:pavelm/screen/UserDetailScreen.dart';
 
 class UserTile extends StatefulWidget {

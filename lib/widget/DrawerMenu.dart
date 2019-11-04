@@ -23,6 +23,12 @@ class DrawerMenu extends StatelessWidget {
               icon: Icon(Icons.account_box),
               onPressed: () {
                 Navigator.pushReplacementNamed(context, "/profile/");
+              }),
+              FlatButton.icon(
+              label: Text("История"),
+              icon: Icon(Icons.history),
+              onPressed: () {
+                Navigator.pushReplacementNamed(context, "/history/");
               })
         ]),
       ),

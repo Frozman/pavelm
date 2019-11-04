@@ -6,7 +6,7 @@ import 'package:pavelm/model/Storage.dart';
 class UserProfileWidget extends StatelessWidget {
   final FirebaseUser user;
 
-
+  // Обработчик выхода из профиля
   onSignout(){
     final FirebaseAuth _auth = FirebaseAuth.instance;
     _auth.signOut();

@@ -1,8 +1,7 @@
-import 'dart:convert';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pavelm/model/Storage.dart';
+import 'package:pavelm/model/UserData.dart';
 import 'package:pavelm/widget/DrawerMenu.dart';
 
 // Этот экран нужен для того, чтобы как можно быстрее получить контроль над приложением
@@ -24,34 +23,30 @@ class _LoaderScreenState extends State<LoaderScreen> {
 
   doLoad() async {
     // Загружаем данные
-    // Создаем инстанс 
+    // Создаем инстанс
     // Firestore
     QuerySnapshot firedata =
         await Firestore.instance.collection('users').getDocuments();
 
     // Создаем список пользователей согласно firebase документам
-    Storage().users = List.generate(firedata.documents.length, (i){
+    Storage().users = List.generate(firedata.documents.length, (i) {
       // Вводим переменную для конкретного документа
       var doc = firedata.documents[i].data;
 
-      // Вводим переменную для ключа конктерного документа 
+      // Вводим переменную для ключа конктерного документа
       var key = firedata.documents[i].documentID;
-
 
       // Создаем инстанс данных пользователя
       return UserData(
         firebaseKey: key,
-         id: doc['id'].toString(),
-        counter: List.generate(
-            doc['counter'].length,
-            (j) =>
-                Map<String, int>.from(doc['counter'][j])),
+        id: doc['id'].toString(),
+        counter: List.generate(doc['counter'].length,
+            (j) => Map<String, int>.from(doc['counter'][j])),
         lastName: doc['lastname'],
-        photoUrl: doc['photo'], 
+        photoUrl: doc['photo'],
       );
     });
 
-  
     return true;
   }
 

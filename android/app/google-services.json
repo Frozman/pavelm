@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "161645924921-pvvtjcomh5o32anoc7aeu08jt29dann1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mads.pavelm",
+            "certificate_hash": "bd3f6b199f95284a588c3587304eea29849ed3e7"
+          }
+        },
+        {
           "client_id": "161645924921-ors4iqle7clqf6ed2j5g5689hln3t2ar.apps.googleusercontent.com",
           "client_type": 3
         }
