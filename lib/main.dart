@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pavelm/screen/HomeScreen.dart';
 import 'package:pavelm/screen/LoaderScreen.dart';
+import 'package:pavelm/screen/ProfileScreen.dart';
 
 void main() => runApp(PmApp());
 
@@ -17,7 +18,8 @@ class PmApp extends StatelessWidget {
       // Объявляем именованные экраны
       routes: {
         "/loader/": (BuildContext context) => LoaderScreen(),
-        "/home/": (BuildContext context) => HomeScreen(),
+        "/list/": (BuildContext context) => HomeScreen(), 
+        "/profile/": (BuildContext context) => ProfileScreen(), 
       },
     );
   }

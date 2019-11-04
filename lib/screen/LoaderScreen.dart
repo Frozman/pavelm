@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pavelm/model/Storage.dart';
+import 'package:pavelm/widget/DrawerMenu.dart';
 
 // Этот экран нужен для того, чтобы как можно быстрее получить контроль над приложением
 // Во время runApp мы не выполняем ничего тяжелого. Всю загрузку данных мы проводим на этом экране
@@ -26,7 +27,7 @@ class _LoaderScreenState extends State<LoaderScreen> {
     // Создаем инстанс 
     // Firestore
     QuerySnapshot firedata =
-        await Firestore.instance.collection('users').getDocuments(source: Source.server);
+        await Firestore.instance.collection('users').getDocuments();
 
     // Создаем список пользователей согласно firebase документам
     Storage().users = List.generate(firedata.documents.length, (i){
@@ -56,13 +57,15 @@ class _LoaderScreenState extends State<LoaderScreen> {
 
   onLoad(emptyValue) {
     // Переходим на главный экран
-    Navigator.of(context).pushReplacementNamed('/home/');
+    Navigator.of(context).pushReplacementNamed('/list/');
   }
 
   @override
   Widget build(BuildContext context) {
     // Создаем простой интерфейс загрузки
     return Scaffold(
+      appBar: AppBar(),
+      drawer: DrawerMenu(),
       body: Center(
         child: CircularProgressIndicator(),
       ),
