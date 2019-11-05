@@ -1,5 +1,11 @@
+import 'dart:async';
+import 'dart:io';
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:pavelm/model/HistoryModel.dart';
 import 'package:pavelm/model/Storage.dart';
 
@@ -16,6 +22,13 @@ class UserCounterForm extends StatefulWidget {
 }
 
 class _UserCounterFormState extends State<UserCounterForm> {
+  String uploadUri;
+
+  File attachedImage;
+  StreamSubscription<StorageTaskEvent> streamSubscription;
+  StorageUploadTask uploadTask;
+
+  StorageReference storageReference;
   // Заводим контроллеры значений
   Map<String, ValueNotifier<int>> counterValues = {
     'a': ValueNotifier<int>(0),
@@ -38,7 +51,29 @@ class _UserCounterFormState extends State<UserCounterForm> {
     }
   }
 
+  onUploadProress(StorageTaskEvent event) {
+    print(event.type);
+    if (event.type == StorageTaskEventType.success) {
+      // event.snapshot.storageMetadata;
+      streamSubscription.cancel();
+      onUploadDone();
+    }
+  }
+
+  onUploadDone() {
+    Navigator.of(context).pop();
+  }
+
+  onUploadStart() {
+    showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+              content: Text('Data uploading in progress'),
+            ));
+  }
+
   onSubmit() {
+    onUploadStart();
     // По нажатию перебираем контроллеры и меняем модель
     counterValues.forEach((k, v) {
       int lastIndex = widget.user.counter.length - 1;
@@ -46,14 +81,23 @@ class _UserCounterFormState extends State<UserCounterForm> {
         widget.user.counter[lastIndex][k] = v.value;
       });
     });
+
+    if (attachedImage != null) {
+      uploadUri = "/counters/" +
+          Random().nextInt(9999999).toStringAsFixed(9) +
+          Random().nextInt(9999999).toStringAsFixed(9) +
+          attachedImage.uri.path.split(".").last;
+      storageReference = FirebaseStorage().ref().child(uploadUri);
+      uploadTask = storageReference.putData(attachedImage.readAsBytesSync());
+      streamSubscription = uploadTask.events.listen(onUploadProress);
+    }
+
     Map<String, int> counter = Map();
     counter['a'] = counterValues['a'].value;
     counter['b'] = counterValues['b'].value;
     counter['c'] = counterValues['c'].value;
     Storage().historyStorage.append(HistoryItem(
-          counter: counter,
-          time: Timestamp.now(),
-        ));
+        counter: counter, time: Timestamp.now(), imageurl: uploadUri));
 
     Storage().historyStorage.upload().then((error) {
       if (error != null) {
@@ -78,6 +122,19 @@ class _UserCounterFormState extends State<UserCounterForm> {
         .updateData(widget.user.toFirestore());
   }
 
+  onAttach() =>
+      ImagePicker.pickImage(source: ImageSource.gallery).then(onFilepickEnd);
+
+  onAttachRemove() => setState(() {
+        attachedImage = null;
+      });
+
+  onFilepickEnd(File image) {
+    setState(() {
+      attachedImage = image;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -98,6 +155,26 @@ class _UserCounterFormState extends State<UserCounterForm> {
                       )),
             ),
           ),
+          attachedImage == null
+              ? FlatButton(
+                  color: Colors.cyan,
+                  child: Text('attach'),
+                  onPressed: onAttach,
+                )
+              : Column(
+                  children: <Widget>[
+                    Image.file(
+                      attachedImage,
+                      height: 100,
+                      fit: BoxFit.cover,
+                    ),
+                    FlatButton(
+                      color: Colors.redAccent,
+                      child: Text('remove'),
+                      onPressed: onAttachRemove,
+                    )
+                  ],
+                ),
           FlatButton(
             color: Colors.cyan,
             child: Text('submit'),

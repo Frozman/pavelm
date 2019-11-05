@@ -1,3 +1,8 @@
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:pavelm/model/Storage.dart';
 import 'package:pavelm/widget/DrawerMenu.dart';
@@ -62,13 +67,72 @@ class _HistoryBodyState extends State<HistoryBody> {
   Widget build(BuildContext context) {
     var history = Storage().historyStorage.items;
     return ListView(
-      children: List.generate(
-          history.length,
-          (i) => ListTile(
-                subtitle:
-                    Text(history[i].time.toDate().toLocal().toIso8601String()),
-                title: Text(history[i].counter.toString()),
-              )),
+        children: List.generate(
+      history.length,
+      (i) => HistoryItemTile(
+        time: history[i].time,
+        counter: history[i].counter,
+        imageUri: history[i].imageurl,
+      ),
+    ));
+  }
+}
+
+class HistoryItemTile extends StatefulWidget {
+  final Timestamp time;
+  final Map<String, int> counter;
+  final String imageUri;
+
+  const HistoryItemTile({Key key, this.time, this.counter, this.imageUri})
+      : super(key: key);
+  @override
+  _HistoryItemTileState createState() => _HistoryItemTileState();
+}
+
+class _HistoryItemTileState extends State<HistoryItemTile> {
+  String imageLink;
+
+  @override
+  void initState() {
+    super.initState();
+    loadImageUrl();
+  }
+
+  loadImageUrl() async {
+    if (widget.imageUri != null) {
+      FirebaseStorage()
+          .ref()
+          .child(widget.imageUri)
+          .getDownloadURL()
+          .then((data) {
+        setState(() {
+          imageLink = data;
+        });
+      });
+    }
+  }
+
+  Widget buildTrailing() {
+    print(imageLink);
+    if (widget.imageUri == null) {
+      return Container(
+        width: 1,
+      );
+    }
+    if (imageLink == null) {
+      return CircularProgressIndicator();
+    }
+    return Image.network(
+      imageLink,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      trailing: buildTrailing(),
+      subtitle: Text(widget.time.toDate().toLocal().toIso8601String()),
+      title: Text(widget.counter.toString()),
     );
   }
 }
