@@ -52,19 +52,21 @@ class _UserCounterFormState extends State<UserCounterForm> {
   }
 
   onUploadProress(StorageTaskEvent event) {
-    print(event.type);
+    // Если пришло событие успеха загрузки
     if (event.type == StorageTaskEventType.success) {
-      // event.snapshot.storageMetadata;
+      // Отписываемся с канала статуса загрузки
       streamSubscription.cancel();
       onUploadDone();
     }
   }
 
   onUploadDone() {
+    // Закрываем модалку
     Navigator.of(context).pop();
   }
 
   onUploadStart() {
+    // Показываем модалку с описаним процесса
     showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
@@ -81,14 +83,19 @@ class _UserCounterFormState extends State<UserCounterForm> {
         widget.user.counter[lastIndex][k] = v.value;
       });
     });
-
+    // Если есть изображение к загрузке
     if (attachedImage != null) {
+      // Сочиняем неповторимое название
       uploadUri = "/counters/" +
           Random().nextInt(9999999).toStringAsFixed(9) +
-          Random().nextInt(9999999).toStringAsFixed(9) +
+          Timestamp.now().millisecondsSinceEpoch.toString() +
           attachedImage.uri.path.split(".").last;
+
+      // Открываем дескриптор на файл
       storageReference = FirebaseStorage().ref().child(uploadUri);
+      // Ставим задачу на загрузку
       uploadTask = storageReference.putData(attachedImage.readAsBytesSync());
+      // Подписываемся на процесс загрузки
       streamSubscription = uploadTask.events.listen(onUploadProress);
     }
 
@@ -122,13 +129,16 @@ class _UserCounterFormState extends State<UserCounterForm> {
         .updateData(widget.user.toFirestore());
   }
 
+  // Инициализируем процесс выбора файла
+  // Подписываемся на future который разрешится после конца выбора
   onAttach() =>
       ImagePicker.pickImage(source: ImageSource.gallery).then(onFilepickEnd);
 
+  // В случае удаления прикрепленного файла до загрузки
   onAttachRemove() => setState(() {
         attachedImage = null;
       });
-
+  // После успешного выбора  мы сохраняем файл у себя
   onFilepickEnd(File image) {
     setState(() {
       attachedImage = image;

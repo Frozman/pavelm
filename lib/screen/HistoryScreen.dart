@@ -91,6 +91,7 @@ class HistoryItemTile extends StatefulWidget {
 
 class _HistoryItemTileState extends State<HistoryItemTile> {
   String imageLink;
+  // Ссылка на фактический адрес изображения 
 
   @override
   void initState() {
@@ -98,13 +99,23 @@ class _HistoryItemTileState extends State<HistoryItemTile> {
     loadImageUrl();
   }
 
+  // Здесь описан получения реальной ссылки из URI
+  // который тянется из firebase
+
   loadImageUrl() async {
+    // Проверяем есть ли у нас URI
     if (widget.imageUri != null) {
+      // Берем синглтон
+      // Получаем StorageReference  по .ref() для дальнейших манипуляций
+      // Ссылаемся на нужный файл по uri
+      // Получаем ссылку на изображение
       FirebaseStorage()
           .ref()
           .child(widget.imageUri)
           .getDownloadURL()
           .then((data) {
+            // После того как решится future 
+            // Мы обновляем imageLink
         setState(() {
           imageLink = data;
         });
@@ -113,15 +124,17 @@ class _HistoryItemTileState extends State<HistoryItemTile> {
   }
 
   Widget buildTrailing() {
-    print(imageLink);
+    // Если у нас нет imageUri  в базе , то отдать просто заглушку
     if (widget.imageUri == null) {
       return Container(
         width: 1,
       );
     }
+    // Если еще нет ссылки показать индиактор загрузки
     if (imageLink == null) {
       return CircularProgressIndicator();
     }
+    // если все хорошо отдать изображение 
     return Image.network(
       imageLink,
     );
